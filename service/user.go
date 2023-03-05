@@ -2,7 +2,9 @@ package service
 
 import (
 	"fmt"
+	"gim/common"
 	"gim/dao"
+	"gim/middlewear"
 	"gim/models"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -135,7 +137,7 @@ func UpdataUser(ctx *gin.Context) {
 		zap.S().Info("类型转换失败", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"code":    -1, //  0成功   -1失败
-			"message": "注销账号失败",
+			"message": "更新账号失败",
 		})
 		return
 	}
@@ -167,7 +169,7 @@ func UpdataUser(ctx *gin.Context) {
 		user.Gender = gender
 	}
 
-	_, err = govalidator.ValidateStruct(user)
+	//_, err = govalidator.ValidateStruct(user)
 	if err != nil {
 		zap.S().Info("参数不匹配", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{

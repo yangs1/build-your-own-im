@@ -14,10 +14,11 @@ func Pong(c *gin.Context) {
 }
 
 func main() {
+	logConf := initialize.DefaultLogger()
 	//初始化日志
-	initialize.InitLogger()
+	initialize.InitLogger(logConf)
 	//初始化配置
-	initialize.InitConfig()
+	//initialize.InitConfig()
 	//初始化数据库
 	initialize.InitDB()
 

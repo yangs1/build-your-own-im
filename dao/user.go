@@ -2,9 +2,12 @@ package dao
 
 import (
 	"errors"
+	"gim/common"
 	"gim/global"
 	"gim/models"
 	"go.uber.org/zap"
+	"strconv"
+	"time"
 )
 
 //GetUserList 获取用户列表， 直接在用户
@@ -24,10 +27,10 @@ func FindUserByNameAndPwd(name string, password string) (*models.UserBasic, erro
 	}
 
 	//登录识别
-	//t := strconv.Itoa(int(time.Now().Unix()))
+	t := strconv.Itoa(int(time.Now().Unix()))
 
 	//这个md5后续会讲解， 可以先注释
-	temp := "123ffrasfqs" //common.Md5encoder(t)
+	temp := common.Md5encoder(t)
 
 	if tx := global.DB.Model(&user).Where("id = ?", user.ID).Update("identity", temp); tx.RowsAffected == 0 {
 		return nil, errors.New("写入identity失败")

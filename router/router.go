@@ -1,6 +1,7 @@
 package router
 
 import (
+	"gim/middlewear"
 	"gim/service"
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +14,7 @@ func Router() *gin.Engine {
 	v1 := router.Group("v1")
 
 	//用户模块，后续有个用户的api就放置其中
-	user := v1.Group("user")
+	user := v1.Group("user").Use(middlewear.JWY())
 	{
 		user.GET("/list", service.List)
 		user.POST("/login_pw", service.LoginByNameAndPassWord)
