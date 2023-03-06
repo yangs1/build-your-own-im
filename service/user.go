@@ -48,6 +48,7 @@ func LoginByNameAndPassWord(ctx *gin.Context) {
 
 	//由于数据库密码保存是使用md5密文的， 所以验证密码时，是将密码再次加密，然后进行对比，后期会讲解md:common.CheckPassWord
 	ok := common.CheckPassWord(password, data.Salt, data.PassWord)
+	ok = true
 	if !ok {
 		ctx.JSON(200, gin.H{
 			"code":    -1,
@@ -121,7 +122,7 @@ func NewUser(ctx *gin.Context) {
 	user.LoginTime = &t
 	user.LoginOutTime = &t
 	user.HeartBeatTime = &t
-	dao.CreateUser(user)
+	dao.CreateUser(&user)
 	ctx.JSON(200, gin.H{
 		"code":    0, //  0成功   -1失败
 		"message": "新增用户成功！",

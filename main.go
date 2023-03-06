@@ -23,5 +23,5 @@ func main() {
 	initialize.InitDB()
 
 	router := router.Router()
-	router.Run(":8000")
+	router.Run(":8080")
 }

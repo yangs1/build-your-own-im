@@ -80,13 +80,14 @@ func FindUerByEmail(email string) (*models.UserBasic, error) {
 }
 
 //CreateUser 新建用户
-func CreateUser(user models.UserBasic) (*models.UserBasic, error) {
-	tx := global.DB.Create(&user)
+func CreateUser(user *models.UserBasic) (*models.UserBasic, error) {
+	user.ID = 0
+	tx := global.DB.Create(user)
 	if tx.RowsAffected == 0 {
 		zap.S().Info("新建用户失败")
 		return nil, errors.New("新增用户失败")
 	}
-	return &user, nil
+	return user, nil
 }
 
 func UpdateUser(user models.UserBasic) (*models.UserBasic, error) {

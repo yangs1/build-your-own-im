@@ -26,7 +26,7 @@ type Claims struct {
 
 func JWY() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.PostForm("token")
+		token := c.GetHeader("token")
 		user := c.Query("userId")
 		userId, err := strconv.Atoi(user)
 		if err != nil {

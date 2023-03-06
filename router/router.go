@@ -18,11 +18,12 @@ func Router() *gin.Engine {
 	user := v1.Group("user").Use(middlewear.JWY())
 	{
 		user.GET("/list", service.List)
-		user.POST("/login_pw", service.LoginByNameAndPassWord)
 		user.POST("/new", service.NewUser)
 		user.DELETE("/delete", service.DeleteUser)
 		user.POST("/updata", service.UpdataUser)
 	}
+
+	v1.POST("/login_pw", service.LoginByNameAndPassWord)
 
 	router.GET("/:name/:id", func(c *gin.Context) {
 		//使用porsen对数据进行解组

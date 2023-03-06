@@ -62,15 +62,15 @@ func InitLogger(conf LogConfigs) error {
 
 func DefaultLogger() LogConfigs {
 	return LogConfigs{
-		LogLevel:          "debug",    // 输出日志级别 "debug" "info" "warn" "error"
-		LogFormat:         "logfmt",   // 输出日志格式 logfmt, json
-		LogPath:           "./log",    // 输出日志文件位置
-		LogFileName:       "test.log", // 输出日志文件名称
-		LogFileMaxSize:    1,          // 输出单个日志文件大小，单位MB
-		LogFileMaxBackups: 10,         // 输出最大日志备份个数
-		LogMaxAge:         1000,       // 日志保留时间，单位: 天 (day)
-		LogCompress:       false,      // 是否压缩日志
-		LogStdout:         true,       // 是否输出到控制台
+		LogLevel:          "debug",        // 输出日志级别 "debug" "info" "warn" "error"
+		LogFormat:         "logfmt",       // 输出日志格式 logfmt, json
+		LogPath:           DefaultLogPath, // 输出日志文件位置
+		LogFileName:       "test.log",     // 输出日志文件名称
+		LogFileMaxSize:    1,              // 输出单个日志文件大小，单位MB
+		LogFileMaxBackups: 10,             // 输出最大日志备份个数
+		LogMaxAge:         1000,           // 日志保留时间，单位: 天 (day)
+		LogCompress:       false,          // 是否压缩日志
+		LogStdout:         true,           // 是否输出到控制台
 	}
 }
 
