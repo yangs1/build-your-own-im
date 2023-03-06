@@ -4,6 +4,7 @@ import (
 	"gim/middlewear"
 	"gim/service"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 func Router() *gin.Engine {
@@ -22,5 +23,24 @@ func Router() *gin.Engine {
 		user.DELETE("/delete", service.DeleteUser)
 		user.POST("/updata", service.UpdataUser)
 	}
+
+	router.GET("/:name/:id", func(c *gin.Context) {
+		//使用porsen对数据进行解组
+		var porsen Porsen
+		if err := c.ShouldBindUri(&porsen); err != nil {
+			c.Status(404)
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"name": porsen.Name,
+			"id":   porsen.ID,
+		})
+	})
 	return router
+}
+
+//结构体声明，并做一些约束
+type Porsen struct {
+	ID   int    `uri:"id" binding:"required"`   //uri指在client中的名字为id，binding:"required指必填
+	Name string `uri:"name" binding:"required"` //同理
 }
