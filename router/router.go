@@ -25,6 +25,13 @@ func Router() *gin.Engine {
 
 	v1.POST("/login_pw", service.LoginByNameAndPassWord)
 
+	//好友关系
+	relation := v1.Group("relation").Use(middlewear.JWY())
+	{
+		relation.POST("/list", service.FriendList)
+		relation.POST("/add", service.AddFriendByName)
+	}
+
 	router.GET("/:name/:id", func(c *gin.Context) {
 		//使用porsen对数据进行解组
 		var porsen Porsen

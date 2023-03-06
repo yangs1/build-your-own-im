@@ -119,3 +119,28 @@ func TestAddUser(t *testing.T) {
 	}
 
 }
+
+func TestAddRelation(t *testing.T) {
+
+	initialize.InitDB()
+	global.DB.AutoMigrate(&models.Relation{})
+
+	str := `{
+        "ID": 11,
+        "CreatedAt": "2022-12-24T16:51:53.418+08:00",
+        "UpdatedAt": "2022-12-24T18:26:06.611+08:00",
+        "DeletedAt": null,
+        "OwnerId": 8,
+        "TargetID": 14,
+		"Type" : 1,
+		"Desc" : "-----"
+    }`
+
+	relation := models.Relation{}
+	json.Unmarshal([]byte(str), &relation)
+
+	log.Printf("%v\n", relation)
+
+	dao.AddFriend(8, 14)
+	dao.AddFriend(8, 12)
+}
