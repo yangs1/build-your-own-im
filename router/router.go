@@ -32,6 +32,12 @@ func Router() *gin.Engine {
 		relation.POST("/add", service.AddFriendByName)
 	}
 
+	//图片、语音模块
+	upload := v1.Group("upload").Use(middlewear.JWY())
+	{
+		upload.POST("/image", service.Image)
+	}
+
 	router.GET("/:name/:id", func(c *gin.Context) {
 		//使用porsen对数据进行解组
 		var porsen Porsen
