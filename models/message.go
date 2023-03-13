@@ -1,7 +1,10 @@
 package models
 
 import (
+	"context"
 	"fmt"
+	"gim/global"
+	"github.com/go-redis/redis/v8"
 	"github.com/goccy/go-json"
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
@@ -119,26 +122,28 @@ func recProc(node *Node) {
 			return
 		}
 
-		//这里是简单实现的一种方法
-		msg := Message{}
-		err = json.Unmarshal(data, &msg)
-		if err != nil {
-			zap.S().Info("json解析失败", err)
-			return
-		}
+		// 处理发生逻辑
+		dispatch(data)
 
-		if msg.Type == 1 {
-			zap.S().Info("这是一条私信:", msg.Content)
-			tarNode, ok := clientMap[msg.TargetId]
-			if !ok {
-				zap.S().Info("不存在对应的node", msg.TargetId)
-				return
-			}
+	}
+}
 
-			tarNode.DataQueue <- data
-			fmt.Println("发送成功：", string(data))
-		}
+//dispatch 解析消息，聊天类型判断
+func dispatch(data []byte) {
+	//解析消息
+	msg := Message{}
+	err := json.Unmarshal(data, &msg)
+	if err != nil {
+		zap.S().Info("消息解析失败", err)
+		return
+	}
 
+	//判断消息类型
+	switch msg.Type {
+	case 1: //私聊
+		sendMsg(msg.TargetId, data)
+	case 2: //群发
+		sendGroupMsg(uint(msg.FormId), uint(msg.TargetId), data)
 	}
 }
 
@@ -157,4 +162,65 @@ func sendMsg(id int64, msg []byte) {
 	if ok {
 		node.DataQueue <- msg
 	}
+}
+
+//sendGroupMsg 群发
+func sendGroupMsg(formId, target uint, data []byte) (int, error) {
+	//群发的逻辑：1获取到群里所有用户，然后向除开自己的每一位用户发送消息
+	userIDs, err := FindUsers(target)
+	if err != nil {
+		return -1, err
+	}
+
+	for _, userId := range *userIDs {
+		if formId != userId { //不能给当前发送消息的成员进行转发
+			//调用单聊的函数，群聊变成了多次单聊
+			sendMsgAndSave(int64(userId), data)
+		}
+	}
+	return 0, nil
+}
+
+//sendMsgTest 发送消息 并存储聊天记录到redis
+func sendMsgAndSave(userId int64, msg []byte) {
+
+	rwLocker.RLock()              //保证线程安全，上锁
+	node, ok := clientMap[userId] //对方是否在线
+	rwLocker.RUnlock()            //解锁
+
+	jsonMsg := Message{}
+	json.Unmarshal(msg, &jsonMsg)
+	ctx := context.Background()
+	targetIdStr := strconv.Itoa(int(userId))
+	userIdStr := strconv.Itoa(int(jsonMsg.FormId))
+
+	if ok {
+		//如果当前用户在线，将消息转发到当前用户的websocket连接中，然后进行存储
+		node.DataQueue <- msg
+	}
+
+	//userIdStr和targetIdStr进行拼接唯一key
+	var key string
+	if userId > jsonMsg.FormId {
+		key = "msg_" + userIdStr + "_" + targetIdStr
+	} else {
+		key = "msg_" + targetIdStr + "_" + userIdStr
+	}
+
+	//创建记录
+	res, err := global.RedisDB.ZRevRange(ctx, key, 0, -1).Result()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	//将聊天记录写入redis缓存中
+	score := float64(cap(res)) + 1
+	ress, e := global.RedisDB.ZAdd(ctx, key, &redis.Z{score, msg}).Result() //jsonMsg
+	//res, e := utils.Red.Do(ctx, "zadd", key, 1, jsonMsg).Result() //备用 后续拓展 记录完整msg
+	if e != nil {
+		fmt.Println(e)
+		return
+	}
+	fmt.Println(ress)
 }

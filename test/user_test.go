@@ -2,6 +2,8 @@ package test
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"gim/dao"
 	"gim/global"
 	"gim/initialize"
@@ -143,4 +145,25 @@ func TestAddRelation(t *testing.T) {
 
 	dao.AddFriend(8, 14)
 	dao.AddFriend(8, 12)
+}
+
+func TestName(t *testing.T) {
+	log.Println(tesAbc())
+}
+
+func tesAbc() error {
+	var err error
+
+	defer func() {
+		if r := recover(); r != nil {
+			err = errors.New(fmt.Sprintf("%s", r))
+		}
+	}()
+
+	DDD()
+	return err
+}
+
+func DDD() {
+	panic("dddddd")
 }

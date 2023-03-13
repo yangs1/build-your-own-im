@@ -21,6 +21,7 @@ func main() {
 	//initialize.InitConfig()
 	//初始化数据库
 	initialize.InitDB()
+	initialize.InitRedis()
 
 	router := router.Router()
 	router.Run(":8080")
